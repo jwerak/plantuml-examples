@@ -1,0 +1,22 @@
+* PlantUML Examples
+
+K8s sprites included as git submodules.
+
+Execute following before using them:
+
+#+begin_src bash
+git submodule update --init --recursive
+#+end_src
+
+
+Then include them in UML using:
+#+begin_src plantuml
+@startuml
+!include ./resources/k8s-sprites/resource/k8s-sprites-unlabeled-25pct.iuml
+package "Infrastructure" {
+  component "<$master>\nmaster" as master
+  component "<$etcd>\netcd" as etcd
+  component "<$node>\nnode" as node
+}
+@enduml
+#+end_src
