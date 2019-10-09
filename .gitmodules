@@ -1,0 +1,3 @@
+[submodule "resources/k8s-sprites"]
+	path = resources/k8s-sprites
+	url = git@github.com:jwerak/plantuml-kubernetes-sprites.git
