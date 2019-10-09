@@ -1,27 +1,61 @@
 @startuml
 
+!include ./resources/k8s-sprites/resource/k8s-sprites-labeled-25pct.iuml
+
 skinparam backgroundColor #EEEBDC
 skinparam handwritten true
+skinparam tabSize 2
 
 skinparam component {
   ArrowColor DeepSkyBlue
   BackgroundColor aqua
 }
 
-package "AWS" {
-  component IAM
-  component Lambda
-  component Vault
+package "Initialize Phase" {
+  component "Cloudformation" as cloudformation
 
-  IAM -down-> Lambda : "Retrieve AWS Credentials"
-  Lambda -up-> Vault : "Save secrets to Vault"
+}
 
-  package "K8s Pod" {
-    component "Init container" as init_container
-    file "Config volume" as config_volume
+package "Runtime Phase" {
+  component IAM as iam
+  component Lambda as lambda
+  component Vault as vault
 
-    init_container <-up- Vault : Pull AWS Secrets
-    config_volume <-up- init_container : Save secrets as file
+  iam -down-> lambda : "Retrieve AWS Credentials"
+  lambda -up-> vault : "Save secrets to Vault"
+
+  cloudformation -> iam : "Create IAM Role and User"
+  cloudformation -> lambda : "Create Lambda function for Secret key handling"
+
+  package "<$pod>\nApp" {
+    component "Vault-agent" as init_container
+    component consul_template [
+      Consul Template
+    ---
+    ~[aws]\t
+      key \t= {{ with secret "mobile/expenseit/e4cm-api/aws/app/access-key" }}
+    {{ .Data.value }}{{ end }}
+      secret \t= {{ with secret "mobile/expenseit/e4cm-api/aws/app/secret-key" }}
+    {{ .Data.value }}{{ end }}
+    ]
+
+    file config_volume [
+      Config volume
+    ---
+    ~[aws]\t
+      key \t= AWS_KEY_ID
+      secret \t= AWS_SECRET_KEY
+    ]
+
+    init_container <-up- vault : Pull AWS Secrets
+    consul_template <-up- init_container : Pull AWS Secrets
+    note right of consul_template
+      supplies e4cm-api.conf template
+      with values from vault and
+      renders output to Config Volume
+    end note
+
+    config_volume <-up- consul_template : Save secrets as file
   }
 }
 
