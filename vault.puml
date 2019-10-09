@@ -1,0 +1,28 @@
+@startuml
+
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+
+skinparam component {
+  ArrowColor DeepSkyBlue
+  BackgroundColor aqua
+}
+
+package "AWS" {
+  component IAM
+  component Lambda
+  component Vault
+
+  IAM -down-> Lambda : "Retrieve AWS Credentials"
+  Lambda -up-> Vault : "Save secrets to Vault"
+
+  package "K8s Pod" {
+    component "Init container" as init_container
+    file "Config volume" as config_volume
+
+    init_container <-up- Vault : Pull AWS Secrets
+    config_volume <-up- init_container : Save secrets as file
+  }
+}
+
+@enduml
