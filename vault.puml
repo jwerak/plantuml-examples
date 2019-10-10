@@ -1,6 +1,7 @@
 @startuml
 
 !include ./resources/k8s-sprites/resource/k8s-sprites-labeled-25pct.iuml
+!include ./resources/aws-sprites/dist/Compute/AWSLambda/AWSLambda.puml
 
 skinparam backgroundColor #EEEBDC
 skinparam handwritten true
@@ -18,7 +19,7 @@ package "Initialize Phase" {
 
 package "Runtime Phase" {
   component IAM as iam
-  component Lambda as lambda
+  component "<$AWSLambda>\nLambda" as lambda
   component Vault as vault
 
   iam -down-> lambda : "Retrieve AWS Credentials"
