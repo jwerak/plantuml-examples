@@ -1,6 +1,6 @@
 * PlantUML Examples
 
-K8s sprites included as git submodules.
+K8s and AWS sprites included as git submodules.
 
 Execute following before using them:
 
@@ -11,12 +11,14 @@ git submodule update --init --recursive
 
 Then include them in UML using:
 #+begin_src plantuml
-@startuml
-!include ./resources/k8s-sprites/resource/k8s-sprites-unlabeled-25pct.iuml
-package "Infrastructure" {
-  component "<$master>\nmaster" as master
-  component "<$etcd>\netcd" as etcd
-  component "<$node>\nnode" as node
-}
-@enduml
+  @startuml
+  !include ./resources/k8s-sprites/resource/k8s-sprites-unlabeled-25pct.iuml
+  !include ./resources/aws-sprites/dist/Compute/AWSLambda/AWSLambda.puml
+  package "Infrastructure" {
+    component "<$master>\nmaster" as master
+    component "<$etcd>\netcd" as etcd
+    component "<$node>\nnode" as node
+    component "<$AWSLambda>\nlambda" as lambda
+  }
+  @enduml
 #+end_src
